@@ -1,4 +1,2 @@
-langchain
-langchain-ollama
-langchain-chroma
-langgraph
+requests
+rich

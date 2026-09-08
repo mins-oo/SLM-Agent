@@ -1,0 +1,1 @@
+가볍고 tool 사용이 가능한 llama3.2:3b 모델을 fine tuning
