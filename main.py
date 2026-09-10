@@ -1,44 +1,35 @@
-import requests
 import time
 from rich.console import Console
 from dataclasses import dataclass, field
 from typing import Any
+from llama_cpp import Llama
 
 @dataclass
 class Agent:
-    model: str = "qwen2.5-coder:7b"
-    base_url: str = "http://localhost:11434/v1"
-    api_key: str = field(default="NO_API_KEY", repr=False)
-    system_prompt: str = "당신은 유능한 AI 비서입니다. 한국어로 대화합니다. 반드시 모르는 사실에 대해서는 정보가 없다고 답변합니다."
+    model_path: str = "./qwen2.5-coder-3b-instruct.gguf"
+    system_prompt: str = "당신은 유능한 AI 비서입니다. 한국어로 대화합니다."
     messages: list[dict[str, Any]] = field(default_factory=list)
+    llm: Llama = field(init=False, repr=False)
     
     def __post_init__(self) -> None:
-        self.base_url = self.base_url.rstrip("/")
+        self.llm = Llama(
+            model_path=self.model_path,
+            n_ctx=2048,
+            verbose=False,
+            n_gpu_layers=0  # CPU only
+        )
         if self.system_prompt:
             self.messages.append({"role": "system", "content": self.system_prompt})
         
     def chat(self, user_message: str) -> str:
         self.messages.append({"role": "user", "content": user_message})
-        
-        url = f"{self.base_url}/chat/completions"
-        headers = {
-            "Authorization": f"Bearer {self.api_key}",
-            "Content-Type": "application/json",
-        }
-        
-        r = requests.post(
-            url,
-            headers=headers,
-            json={
-                "model": self.model,
-                "messages": self.messages,
-            },
-            timeout=300,
+
+        response = self.llm.create_chat_completion(
+            messages=self.messages,
+            temperature=0.3,
         )
-        r.raise_for_status()
-        data = r.json()
-        choices = data.get("choices")
         
+        choices = response.get("choices")
         if not choices:
             raise RuntimeError("Model response missing choices")
         
@@ -46,12 +37,12 @@ class Agent:
         if message is None:
             raise RuntimeError("Model response missing message")
         
-        response = message.get("content") or ""
-        self.messages.append({"role": "assistant", "content": response})
-        return response
+        answer = message.get("content") or ""
+        self.messages.append({"role": "assistant", "content": answer})
+        return answer
 
 def main() -> None:
-    agent = Agent(model="qwen2.5-coder:7b")
+    agent = Agent(model_path="./qwen2.5-coder-3b-instruct.gguf")
     console = Console()
     
     while True:
