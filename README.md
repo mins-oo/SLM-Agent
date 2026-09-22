@@ -1,21 +1,4 @@
-## 실행 방법
+*Qwen2.5-7B-Instruct-Q5_K_M* 모델을 사용하여 로컬 에이전트를 제작한다.
+기본적인 챗봇 역할과 데스크탑 작업을 위한 tool calling 기능을 포함한다.
 
-프로젝트 폴더에서 다음 명령을 실행하면 GUI가 열립니다.
-
-```powershell
-.venv\Scripts\python.exe main.py
-```
-
-파일 작업 도구를 실행할 때는 GUI 승인 창이 표시됩니다. 모델이 로드된 뒤 입력창에 질문을 입력하고 `전송`을 누르세요.
-
-기존 콘솔 모드가 필요하면 다음처럼 실행합니다.
-
-```powershell
-.venv\Scripts\python.exe main.py --cli
-```
-
-**qwen2.5-coder:3b** 모델의 한국어 능력을 향상시키려 **nlpai-lab/kullm-v2** 데이터셋으로 파인튜닝을 시도해보았다.
-coder 모델 특성상 대화 용도로 파인튜닝을 하니 성능이 저하되는 것을 느껴 **llama3.2:3b** 모델로 변경
-
-파싱을 엉터리로 하고 있었다!!
-애초에 태그 자체를 생성 못하고 있었고 <tool>에 한정해서만 보정을 하여서 정상 작동한 것
+llama-cpp-python을 사용하여 gguf 형식으로 저장된 모델을 불러온다.

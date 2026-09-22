@@ -21,6 +21,9 @@ def ask_approval(tool_name: str, args: dict) -> bool:
         return False
 
 # Tool
+def tool_nothing():
+    return 0
+
 def tool_read_file(path: str) -> str:
     if not ask_approval("read_file", {"path": path}):
         return "사용자가 파일 읽기 실행을 거부했습니다."
@@ -61,12 +64,17 @@ def tool_edit_file(path: str, old_text: str, new_text: str) -> str:
         return f"파일 수정 실패: {e}"
 
 TOOL_FUNCTIONS = {
+    "nothing": tool_nothing,
     "read_file": tool_read_file,
     "write_file": tool_write_file,
     "edit_file": tool_edit_file,
 }
 
 TOOLS_SCHEMA = [
+    {
+        "name": "nothing",
+        "description": "일반적인 대화를 할 때 도구 호출을 하지 않도록 사용합니다."
+    },
     {
         "name": "read_file",
         "description": "지정된 경로의 텍스트 파일 내용을 읽어옵니다.",
