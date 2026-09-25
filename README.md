@@ -1,4 +1,23 @@
-*Qwen2.5-7B-Instruct-Q5_K_M* 모델을 사용하여 로컬 에이전트를 제작한다.
-기본적인 챗봇 역할과 데스크탑 작업을 위한 tool calling 기능을 포함한다.
+# SLM-based Local Agent
+This is a personal agent for low-spec computer users. I set the prompt to respond in Korean.
 
-llama-cpp-python을 사용하여 gguf 형식으로 저장된 모델을 불러온다.
+### My laptop spec
+```
+- OS: Windows 11 Pro x64
+- CPU: AMD Ryzen 7 PRO 6850U
+- RAM: LPDDR5 16.0GB
+- GPU: AMD Radeon(TM) Graphics 2.0GB
+- Storage: 512GB SSD
+```
+It works on CPU only and automatically detects the number of available CPU cores.
+
+## Requirements
+
+### Dependency
+This project uses the **llama-cpp-python** library, which executes local models via llama.cpp. Therefore, a C++ compiler must be installed on your system.
+
+### Model
+Before running, you need to download a GGUF model file into the './model' directory.
+I downloaded **Qwen2.5-7B-Instruct-Q5_K_M.gguf** model from [Huggingface](https://huggingface.co/Qwen/Qwen2.5-7B-Instruct-GGUF).
+
+Also, this code is optimized for Qwen-formatted prompts and tool calling methods. Other models can be run, but they may not function as well.

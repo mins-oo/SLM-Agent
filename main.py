@@ -1,4 +1,5 @@
 import os, json, time, re
+from pathlib import Path
 from typing import Any, Dict, List
 from llama_cpp import Llama
 from rich.console import Console
@@ -8,6 +9,18 @@ from gbnf import agent_grammar
 
 console = Console()
 tools_json = json.dumps(TOOLS_SCHEMA, ensure_ascii=False, indent=2)
+
+MODEL_DIR = "./model"
+
+def get_model() -> str:
+    dir_path = Path(MODEL_DIR)
+    model_files = sorted(list(dir_path.glob("*.gguf")))
+    if not model_files:
+        raise FileNotFoundError(
+            f"'{MODEL_DIR}' folder doesn't have model. Please download GGUF file.\n"
+            "recommend: https://huggingface.co/Qwen/Qwen2.5-7B-Instruct-GGUF"
+        )
+    return str(model_files[0])
 
 def build_system_prompt(user_memory: dict | None = None) -> str:
     memory_section = ""
@@ -42,7 +55,7 @@ def parse_tool_call(text: str) -> dict | None:
     return None
 
 def main():
-    model_path = "./Qwen2.5-7B-Instruct-Q5_K_M.gguf"
+    model_path = get_model()
     console.print(f"[dim]model: {model_path}[/dim]")
     cpu_cores = max(1, (os.cpu_count() or 4) - 2)
     console.print(f"[dim]using CPU cores: {cpu_cores}[/dim]")
@@ -56,7 +69,7 @@ def main():
     console.print(f"[dim]loading model...[/dim]")
     llm = Llama(
         model_path=model_path,
-        n_ctx=2048,
+        n_ctx=4096,
         n_threads=cpu_cores,
         n_gpu_layers=0,
         chat_format="chatml",
@@ -93,6 +106,9 @@ def main():
         messages.append({"role": "assistant", "content": assistant_text})
 
         tool_call = parse_tool_call(assistant_text)
+        if not tool_call:
+            console.print("[dim]error: no tool call detected.[/dim]")
+            continue
         fn_name = tool_call.get("name", "")
         fn_args = tool_call.get("arguments", {})
 
@@ -114,7 +130,7 @@ def main():
         final_res = llm.create_chat_completion(
             messages=messages,
             temperature=0.7,
-            max_tokens=512,
+            max_tokens=1024,
             stop=["<|im_end|>"]
         )
         final_text = final_res["choices"][0]["message"]["content"] or ""
